@@ -1,0 +1,67 @@
+name: Review is done
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  review-is-done:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    if: github.event.review.state == 'approved'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get PR information and check approvals
+        id: get_pr_info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
+
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner,
+              repo,
+              pull_number,
+            });
+
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner,
+              repo,
+              pull_number,
+            });
+
+            const approvedReviews = reviews.filter(review => review.state === 'APPROVED');
+            const uniqueApprovers = new Set(approvedReviews.map(review => review.user.id));
+
+            if (!(uniqueApprovers.size >= 2)) {
+              return
+            }
+
+            const REVIEW_DONE = '✅️ REVIEW IS DONE';
+            const PLEASE_REVIEW = '🙏 PLEASE REVIEW!';
+
+            const hasLabel = pullRequest.labels.some(label => label.name === REVIEW_DONE);
+
+            if (hasLabel) {
+              return
+            }
+
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pull_number,
+              labels: [REVIEW_DONE],
+            });
+
+            await github.rest.issues.removeLabel({
+              owner,
+              repo,
+              issue_number: pull_number,
+              name: PLEASE_REVIEW,
+            })

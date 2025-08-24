@@ -1,0 +1,22 @@
+@theme {
+  --color-main-bg: var(--color-white);
+  --color-sub-bg: var(--color-zinc-200);
+  --color-thin-bg: var(--color-zinc-100);
+  --color-main-blue: #00307c;
+  --color-main-green: #00a884;
+  --color-dark-blue: #00102e;
+  --color-main-border: var(--color-zinc-300);
+  --color-main-text: var(--color-zinc-950);
+  --color-sub-text: var(--color-zinc-500);
+  --color-main-red: var(--color-red-600);
+  --color-main-red-hover: var(--color-red-500);
+  --color-thin-red: var(--color-red-100);
+  --color-thin-red-hover: var(--color-red-200);
+
+  --bg-overlay-blue:
+    linear-gradient(0deg, rgba(0, 48, 124, 0.1) 0%, rgba(0, 48, 124, 0.1) 100%),
+    var(--color-main-bg);
+  --bg-overlay-blue-hover:
+    linear-gradient(0deg, rgba(0, 48, 124, 0.2) 0%, rgba(0, 48, 124, 0.2) 100%),
+    var(--color-main-bg);
+}
