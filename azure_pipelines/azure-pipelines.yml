@@ -12,10 +12,6 @@ trigger:
 
 pr: none
 
-variables:
-- group: front-cpd-dp-variable-group
-- group: front-vite-env-group
-
 stages:
 - stage: React_StaticWebApp_Deploy
   pool:
@@ -24,10 +20,8 @@ stages:
   variables:
     ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
       envValue: prod
-      apiToken: $(stapp-cpd-dp-prod-je-001)
     ${{ else }} :
       envValue: stg
-      apiToken: $(stapp-cpd-dp-test-je-001)
   
   jobs:
   - job: build_and_deploy_job
