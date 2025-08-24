@@ -8,7 +8,7 @@ name: build-$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   branches:
     include:
-      - aq/oidc-testt
+      - oidc-testtrgrggdfgdfgds
 
 pr: none
 
