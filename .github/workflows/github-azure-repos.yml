@@ -27,8 +27,8 @@ jobs:
         run: |
           git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
           git fetch azure
-          git diff HEAD..azure/${{ github.head_ref }}
-          git diff --stat HEAD..azure/${{ github.head_ref }}
+          git diff HEAD..azure/develop
+          git diff --stat HEAD..azure/develop
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
