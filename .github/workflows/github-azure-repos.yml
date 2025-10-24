@@ -20,10 +20,10 @@ jobs:
 
       - name: Push to Azure Repos
         run: |
-          git remote add origin  https://ai-constr-vision:${{ secrets.AZURE_DEVOPS_EXT_PAT }}@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git remote add azure   https://ai-constr-vision:${{ secrets.AZURE_DEVOPS_EXT_PAT }}@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
           git config user.name "GitHub Sync Bot"
           git config user.email "bot@github.com"
-          git push origin ${{ github.ref_name }} --force-with-lease
+          git push azure  ${{ github.ref_name }} --force-with-lease
 
 
   # develop_deploy:
