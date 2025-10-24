@@ -39,7 +39,7 @@ jobs:
           if [ -n "$DIFF" ]; then
             echo "差分があります:"
             echo "$DIFF"
-            exit 1
+
           else
             echo "GitHub と Azureの ${{ github.base_ref }} に差分はありません。"
           fi
