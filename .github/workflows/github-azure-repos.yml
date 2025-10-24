@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   compare:
-    #if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR source branch
