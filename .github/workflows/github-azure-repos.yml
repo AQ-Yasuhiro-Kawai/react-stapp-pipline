@@ -31,7 +31,6 @@ jobs:
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
-jobs:
   sync:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
