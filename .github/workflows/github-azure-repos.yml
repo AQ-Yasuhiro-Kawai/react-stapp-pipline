@@ -1,9 +1,9 @@
 on:
   push:
-    branches: [ main, develop, feature/test ]
+    branches: [ main, develop ]
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [ main, develop, feature/test ]
+    branches: [ main, develop ]
     paths-ignore:
       - 'azure_pipelines/azure-pipelines.yml'
       - '.github/workflows/github-azure-repos.yml'
@@ -40,7 +40,7 @@ jobs:
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
               echo "$DIFF"
               echo "$DIFF" >> $GITHUB_STEP_SUMMARY
-              
+              exit 1
             else
               echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
