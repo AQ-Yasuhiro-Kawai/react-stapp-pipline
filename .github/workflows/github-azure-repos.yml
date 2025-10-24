@@ -36,12 +36,12 @@ jobs:
             echo "Azure branch found. Proceeding with diff check."
             DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
             if [ -n "$DIFF" ]; then
-              echo "There is a difference in the code. GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }}"
+              echo "There is a difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
               echo "$DIFF"
               exit 1
             else
-              echo "There is no difference in the code. GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }}"
+              echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
             fi
           else
@@ -70,11 +70,13 @@ jobs:
           if git fetch azure ${{ github.ref_name }}; then
             echo "Azure branch found. Proceeding with safe push (--force-with-lease)."
             git push azure ${{ github.ref_name }} --force-with-lease
-            echo "Pushed with --force-with-lease" >> $GITHUB_STEP_SUMMARY
+            echo "Pushed with --force-with-lease"
+            echo "ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
           else
             echo "Azure branch does not exist yet. This is the first push."
             git push azure ${{ github.ref_name }} --force
-            echo "Pushed with --force (initial push)" >> $GITHUB_STEP_SUMMARY
+            echo "Pushed with --force (initial push)"
+            echo "初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
