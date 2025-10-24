@@ -8,14 +8,15 @@ name: build-$(Date:yyyyMMdd)$(Rev:.r)
 trigger:
   branches:
     include:
-      - oidc-testtrgrggdfgdfgds
+      - develop
+      - main
 
 pr: none
 
 stages:
 - stage: React_StaticWebApp_Deploy
   pool:
-    name: react-stapp-test
+    vmImage: ubuntu-latest
   
   variables:
     ${{ if eq(variables['Build.SourceBranchName'], 'main') }}:
@@ -25,7 +26,7 @@ stages:
   
   jobs:
   - job: build_and_deploy_job
-    displayName: Build_and_Deploy_Job
+    displayName: '${{ variables.envValue }}: Build_and_Deploy_Job'
 
     steps:
     - checkout: self

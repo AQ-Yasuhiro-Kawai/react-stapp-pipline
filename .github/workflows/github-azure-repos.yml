@@ -1,8 +1,84 @@
-# on:
-#   push:
-#     branches:
-#       - aq/oidc-testtt
-#   pull_request:
-#     types: [opened, synchronize, reopened, closed]
-#     branches:
-#       - aq/oidc-testtt
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'azure_pipelines/azure-pipelines.yml'
+      - '.github/workflows/github-azure-repos.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  branch_compare:
+    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}   # ← マージ先ブランチ
+          #ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ
+          fetch-depth: 0
+
+      - name: Fetch Azure Repos branch and compare
+        run: |
+          git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
+
+          # fetch の成否で分岐
+          if git fetch azure ${{ github.base_ref }}; then
+            echo "Azure branch found. Proceeding with diff check."
+            DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
+            if [ -n "$DIFF" ]; then
+              echo "There is a difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
+              echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
+              echo "$DIFF"
+              echo "$DIFF" >> $GITHUB_STEP_SUMMARY
+              
+            else
+              echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
+              echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "Since there are no branches in Azure Repos：${{ github.base_ref }}, the comparison was skipped."
+            echo "Azure Reposにブランチ ${{ github.base_ref }} が存在しないため、比較をスキップしました。" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+
+  branch_sync:
+    if: ${{ github.event_name == 'push' }}
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Azure Repos
+        run: |
+          git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git config user.name "taisei-document-portal"
+          git config user.email "taisei-document-portal@github.com"
+          
+          if git fetch azure ${{ github.ref_name }}; then
+            echo "Azure branch found. Proceeding with safe push (--force-with-lease)."
+            git push azure ${{ github.ref_name }} --force-with-lease
+            echo "Pushed with --force-with-lease"
+            echo " Azure Reposの ${{ github.ref_name }}ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Azure branch does not exist yet. This is the first push."
+            git push azure ${{ github.ref_name }} --force
+            echo "Pushed with --force (initial push)"
+            echo "Azure Reposの ${{ github.ref_name }}ブランチの初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+
