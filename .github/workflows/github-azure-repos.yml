@@ -2,7 +2,7 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    types: [opened, synchronize, reopened, closed]
+    types: [opened, synchronize, reopened]
     branches: [ main, develop ]
     paths-ignore:
       - 'azure_pipelines/azure-pipelines.yml'
@@ -20,37 +20,45 @@ jobs:
       - name: Checkout PR source branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ
+          ref: ${{ github.base_ref }}   # ← マージ先ブランチ (例: develop)
+          #ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ
           fetch-depth: 0
 
-      - name: Fetch to Azure Repos
+      - name: Fetch Azure Repos branch
         run: |
-          echo "head_ref=${{ github.head_ref }}"
-          echo "ref_name=${{ github.ref_name }}"
-
           git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
-          git fetch azure
-          
+          git fetch azure ${{ github.base_ref }}
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+ 
+      - name: Check diff between GitHub and Azure
+        run: |
+          echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
+          DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
 
-#git --no-pager diff azure/{{ github.head_ref }}..HEAD
-#git diff --stat azure/${{ github.head_ref }}..HEAD
-  # sync:
-  #   if: ${{ github.event_name == 'push' }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+          if [ -n "$DIFF" ]; then
+            echo "差分があります:"
+            echo "$DIFF"
 
-  #     - name: Push to Azure Repos
-  #       run: |
-  #         git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
-  #         git config user.name "GitHub Sync Bot"
-  #         git config user.email "bot@github.com"
-  #         git fetch azure ${{ github.ref_name }}
-  #         git push azure  ${{ github.ref_name }} --force-with-lease
-  #       env:
-  #         AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+          else
+            echo "GitHub と Azureの ${{ github.base_ref }} に差分はありません。"
+          fi
+
+  sync:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Azure Repos
+        run: |
+          git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git config user.name "GitHub Sync Bot"
+          git config user.email "bot@github.com"
+          git fetch azure ${{ github.ref_name }}
+          git push azure  ${{ github.ref_name }} --force-with-lease
+        env:
+          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
