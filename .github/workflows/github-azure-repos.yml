@@ -1,8 +1,57 @@
-# on:
-#   push:
-#     branches:
-#       - aq/oidc-testtt
-#   pull_request:
-#     types: [opened, synchronize, reopened, closed]
-#     branches:
-#       - aq/oidc-testtt
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'azure_pipelines/azure-pipelines.yml'
+      - '.github/workflows/github-azure-repos.yml'
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Push to Azure Repos
+        run: |
+          git remote add origin  https://ai-constr-vision:${{ secrets.AZURE_DEVOPS_EXT_PAT }}@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git config user.name "GitHub Sync Bot"
+          git config user.email "bot@github.com"
+          git push origin ${{ github.ref_name }} --force-with-lease
+
+
+  # develop_deploy:
+  #   needs: filter_paths
+  #   name:  Deploy to Develop
+  #   if: startsWith(github.ref, 'refs/heads/develop') 
+  #   uses: ./.github/workflows/workflow.yaml
+  #   with:
+  #     deploy_environment: dev
+  #     deploy_environment_matrix: ${{ needs.filter_paths.outputs.changed_dirs }}
+
+
+
+
+
+
+# compare:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # ① PR元（developブランチ）をチェックアウト
+#       - name: Checkout PR source branch (develop)
+#         uses: actions/checkout@v4
+#         with:
+#           ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ（develop）
+
+#       # ② Azure Repos main をフェッチ
+#       - name: Fetch Azure Repos main
+#         env:
+#           AZURE_PAT: ${{ secrets.AZURE_PAT }}
+#         run: |
+#           git fetch "https://$(echo -n $AZURE_PAT | jq -s -R -r @uri)@dev.azure.com/ORG/PROJECT/_git/REPO" main:azure-main
