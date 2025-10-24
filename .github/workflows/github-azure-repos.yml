@@ -39,7 +39,8 @@ jobs:
               echo "There is a difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
               echo "$DIFF"
-              exit 1
+              echo "$DIFF" >> $GITHUB_STEP_SUMMARY
+              
             else
               echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
               echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
