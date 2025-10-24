@@ -40,22 +40,22 @@ stages:
       inputs:
         version: '22.x'
 
-    - script: npm install
-      displayName: Num_Install_dependencies
+    # - script: npm install
+    #   displayName: Num_Install_dependencies
 
-    - script: npm run build:${{ variables.envValue }}
-      displayName: Num_Build_Project
+    # - script: npm run build:${{ variables.envValue }}
+    #   displayName: Num_Build_Project
 
-    - script: ls -la dist
-      displayName: Show dist directory contents
+    # - script: ls -la dist
+    #   displayName: Show dist directory contents
 
-    - task: AzureStaticWebApp@0
-      inputs:
-        azure_static_web_apps_api_token: "48fbe6a155cb918f720f58a736f1d74fa81fc153b3a222206d486150c8e6ad4801-62891dc1-f844-40a3-93e5-d2a57d16397f0001328007cf6900"
-    ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-    # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-        app_location: "dist" # App source code path
-        api_location: "" # Api source code path - optional
-        output_location: "" # Built app content directory - optional
-        skip_app_build: true
-    ###### End of Repository/Build Configurations ######
+    # - task: AzureStaticWebApp@0
+    #   inputs:
+    #     azure_static_web_apps_api_token: "48fbe6a155cb918f720f58a736f1d74fa81fc153b3a222206d486150c8e6ad4801-62891dc1-f844-40a3-93e5-d2a57d16397f0001328007cf6900"
+    # ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
+    # # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
+    #     app_location: "dist" # App source code path
+    #     api_location: "" # Api source code path - optional
+    #     output_location: "" # Built app content directory - optional
+    #     skip_app_build: true
+    # ###### End of Repository/Build Configurations ######
