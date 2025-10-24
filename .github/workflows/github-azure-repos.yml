@@ -6,6 +6,7 @@ on:
     branches: [ main, develop ]
     paths-ignore:
       - 'azure_pipelines/azure-pipelines.yml'
+      - '.github/workflows/github-azure-repos.yml'
 
 permissions:
   id-token: write
@@ -24,12 +25,16 @@ jobs:
 
       - name: Fetch to Azure Repos
         run: |
+          echo "head_ref=${{ github.head_ref }}"
+          echo "ref_name=${{ github.ref_name }}"
+
           git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
           git fetch azure
-          git --no-pager diff azure/develop..HEAD
+          
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
+#git --no-pager diff azure/{{ github.head_ref }}..HEAD
 #git diff --stat azure/${{ github.head_ref }}..HEAD
   # sync:
   #   if: ${{ github.event_name == 'push' }}
