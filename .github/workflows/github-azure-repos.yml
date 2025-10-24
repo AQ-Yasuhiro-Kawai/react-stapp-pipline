@@ -13,14 +13,16 @@ permissions:
   contents: read
 
 jobs:
-  compare:
+  branch_compare:
     if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout PR source branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.base_ref }}   # ← マージ先ブランチ (例: develop)
+          ref: ${{ github.base_ref }}   # ← マージ先ブランチ
           #ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ
           fetch-depth: 0
 
@@ -31,20 +33,22 @@ jobs:
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
  
-      - name: Check diff between GitHub and Azure
+      - name: Check diff between GitHub and Azure Repos
         run: |
-          echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
+          echo "===================================================================="
+          echo "Comparing GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
+          echo "===================================================================="
           DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
 
           if [ -n "$DIFF" ]; then
-            echo "差分があります:"
+            echo "GitHub：${{ github.base_ref }} と Azure Repos:${{ github.base_ref }} のコードに差分がありますので確認してください" >> $GITHUB_STEP_SUMMARY
             echo "$DIFF"
-
+            exit 1
           else
-            echo "GitHub と Azureの ${{ github.base_ref }} に差分はありません。"
+            echo "GitHub：${{ github.base_ref }} と Azure Repos:${{ github.base_ref }} のコードに差分はありません" >> $GITHUB_STEP_SUMMARY
           fi
 
-  sync:
+  branch_sync:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
     steps:
