@@ -72,12 +72,12 @@ jobs:
             echo "Azure branch found. Proceeding with safe push (--force-with-lease)."
             git push azure ${{ github.ref_name }} --force-with-lease
             echo "Pushed with --force-with-lease"
-            echo "ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
+            echo " Azure Reposの ${{ github.ref_name }}ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
           else
             echo "Azure branch does not exist yet. This is the first push."
             git push azure ${{ github.ref_name }} --force
             echo "Pushed with --force (initial push)"
-            echo "初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
+            echo "Azure Reposの ${{ github.ref_name }}ブランチの初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
           fi
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
