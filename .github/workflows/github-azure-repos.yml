@@ -14,13 +14,14 @@ permissions:
 
 jobs:
   compare:
-    if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
+    #if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout PR source branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}  # ← PRの発行元ブランチ
+          fetch-depth: 0
 
       - name: Fetch to Azure Repos
         run: |
@@ -31,21 +32,21 @@ jobs:
         env:
           AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
-  sync:
-    if: ${{ github.event_name == 'push' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # sync:
+  #   if: ${{ github.event_name == 'push' }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: Push to Azure Repos
-        run: |
-          git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
-          git config user.name "GitHub Sync Bot"
-          git config user.email "bot@github.com"
-          git fetch azure ${{ github.ref_name }}
-          git push azure  ${{ github.ref_name }} --force-with-lease
-        env:
-          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+  #     - name: Push to Azure Repos
+  #       run: |
+  #         git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+  #         git config user.name "GitHub Sync Bot"
+  #         git config user.email "bot@github.com"
+  #         git fetch azure ${{ github.ref_name }}
+  #         git push azure  ${{ github.ref_name }} --force-with-lease
+  #       env:
+  #         AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
