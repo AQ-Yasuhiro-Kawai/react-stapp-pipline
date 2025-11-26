@@ -34,38 +34,39 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
 
-      - name: Push to Azure Repos
+      # - name: Push to Azure Repos
+      #   run: |
+      #     git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
+      #     git fetch azure ${{ github.base_ref }}
+      #   env:
+      #     ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
+
+      - name: Fetch Azure Repos branch and compare
         run: |
           git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
-          git fetch azure ${{ github.base_ref }}
+          #git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
+
+          # fetch の成否で分岐
+          if git fetch azure ${{ github.base_ref }}; then
+            echo "Azure branch found. Proceeding with diff check."
+            DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
+            if [ -n "$DIFF" ]; then
+              echo "There is a difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
+              echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
+              echo "$DIFF"
+              echo "$DIFF" >> $GITHUB_STEP_SUMMARY
+              exit 1
+            else
+              echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
+              echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "Since there are no branches in Azure Repos：${{ github.base_ref }}, the comparison was skipped."
+            echo "Azure Reposにブランチ ${{ github.base_ref }} が存在しないため、比較をスキップしました。" >> $GITHUB_STEP_SUMMARY
+          fi
         env:
           ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
-
-  #     - name: Fetch Azure Repos branch and compare
-  #       run: |
-  #         git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
-  #         echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
-
-  #         # fetch の成否で分岐
-  #         if git fetch azure ${{ github.base_ref }}; then
-  #           echo "Azure branch found. Proceeding with diff check."
-  #           DIFF=$(git diff --stat ${{ github.base_ref }} azure/${{ github.base_ref }})
-  #           if [ -n "$DIFF" ]; then
-  #             echo "There is a difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
-  #             echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分があります。" >> $GITHUB_STEP_SUMMARY
-  #             echo "$DIFF"
-  #             echo "$DIFF" >> $GITHUB_STEP_SUMMARY
-  #             exit 1
-  #           else
-  #             echo "There is no difference in the code. GitHub:${{ github.base_ref }} and Azure:${{ github.base_ref }}"
-  #             echo "GitHub:${{ github.base_ref }} と Azure:${{ github.base_ref }} に差分はありません。" >> $GITHUB_STEP_SUMMARY
-  #           fi
-  #         else
-  #           echo "Since there are no branches in Azure Repos：${{ github.base_ref }}, the comparison was skipped."
-  #           echo "Azure Reposにブランチ ${{ github.base_ref }} が存在しないため、比較をスキップしました。" >> $GITHUB_STEP_SUMMARY
-  #         fi
-  #       env:
-  #         AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
 
   # branch_sync:
   #   if: ${{ github.event_name == 'push' }}
