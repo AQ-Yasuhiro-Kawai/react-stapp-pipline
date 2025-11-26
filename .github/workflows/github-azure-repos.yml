@@ -45,12 +45,12 @@ jobs:
           cat ~/.ssh/id_rsa
         shell: bash
 
-      # - name: Push to Azure Repos
-      #   run: |
-      #     git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/_git/github-azure-repos
-      #     git fetch azure ${{ github.base_ref }}
-      #   env:
-      #     ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
+      - name: Push to Azure Repos
+        run: |
+          git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git fetch azure ${{ github.base_ref }}
+        env:
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
   #     - name: Fetch Azure Repos branch and compare
   #       run: |
