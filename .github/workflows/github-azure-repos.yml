@@ -26,9 +26,25 @@ jobs:
           #ref: ${{ github.head_ref }}  # PRの発行元ブランチ
           fetch-depth: 0
 
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ADO_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
+
+      # - name: Push to Azure Repos
+      #   run: |
+      #     git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
+      #     git fetch azure ${{ github.base_ref }}
+      #   env:
+      #     ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
+
       - name: Fetch Azure Repos branch and compare
         run: |
-          git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
+          #git remote add azure https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
           echo "Comparing GitHub:${{ github.base_ref }} ↔ Azure:${{ github.base_ref }}"
 
           # fetch の成否で分岐
@@ -50,7 +66,7 @@ jobs:
             echo "Azure Reposにブランチ ${{ github.base_ref }} が存在しないため、比較をスキップしました。" >> $GITHUB_STEP_SUMMARY
           fi
         env:
-          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
   branch_sync:
     if: ${{ github.event_name == 'push' }}
@@ -64,7 +80,7 @@ jobs:
 
       - name: Push to Azure Repos
         run: |
-          git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
+          git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
           git config user.name "taisei-document-portal"
           git config user.email "taisei-document-portal@github.com"
           
@@ -80,5 +96,8 @@ jobs:
             echo "Azure Reposの ${{ github.ref_name }}ブランチの初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
           fi
         env:
-          AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
+# git remote add azure https://taiseiazure-CAI:$AZURE_PAT@dev.azure.com/taiseiazure-CAI/DocumentPortal/_git/DocumentPortal-Backend
+# git remote add azure https://taiseiazure-CAI:$AZURE_PAT@dev.azure.com/taiseiazure-CAI/DocumentPortal/_git/DocumentPortal-Batch
+# git remote add azure https://taiseiazure-CAI:$AZURE_PAT@dev.azure.com/taiseiazure-CAI/DocumentPortal/_git/DocumentPortal-Frontend
