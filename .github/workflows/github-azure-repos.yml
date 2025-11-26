@@ -30,7 +30,7 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo $ADO_SSH_KEY > ~/.ssh/id_rsa
+          echo ${{ secrets.ADO_SSH_KEY }} > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           # ssh-keyscan dev.azure.com >> ~/.ssh/known_hosts
         shell: bash
@@ -41,8 +41,8 @@ jobs:
         run: |
           wc -l ~/.ssh/id_rsa
           head -n 5 ~/.ssh/id_rsa
-          sed -n '1,10p' ~/.ssh/id_rsa
           cat ~/.ssh/id_rsa
+          if [ -z "${{ secrets.ADO_SSH_KEY }}" ]; then echo "EMPTY"; else echo "NOT EMPTY"; fi
         shell: bash
 
       - name: Push to Azure Repos
