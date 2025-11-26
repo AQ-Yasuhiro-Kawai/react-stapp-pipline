@@ -30,7 +30,7 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo ${{ secrets.ADO_SSH_KEY }} > ~/.ssh/id_rsa
+          echo "${{ secrets.ADO_SSH_KEY }}" > ~/.ssh/id_rsa
 
       - name: Debug key length
         run: |
