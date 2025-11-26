@@ -34,8 +34,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           # ssh-keyscan dev.azure.com >> ~/.ssh/known_hosts
         shell: bash
-        env:
-          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
       - name: Debug key length
         run: |
