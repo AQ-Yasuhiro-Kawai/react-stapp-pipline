@@ -30,10 +30,12 @@ jobs:
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
-          echo "$ADO_SSH_KEY" > ~/.ssh/id_rsa
+          echo $ADO_SSH_KEY > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           # ssh-keyscan dev.azure.com >> ~/.ssh/known_hosts
         shell: bash
+        env:
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
       - name: Debug key length
         run: |
