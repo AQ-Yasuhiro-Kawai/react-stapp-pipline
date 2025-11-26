@@ -35,12 +35,17 @@ jobs:
           # ssh-keyscan dev.azure.com >> ~/.ssh/known_hosts
         shell: bash
 
-      - name: Push to Azure Repos
+      - name: Debug key length
         run: |
-          git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/_git/github-azure-repos
-          git fetch azure ${{ github.base_ref }}
-        env:
-          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
+          wc -l ~/.ssh/id_rsa
+          head -n 5 ~/.ssh/id_rsa
+
+      # - name: Push to Azure Repos
+      #   run: |
+      #     git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/_git/github-azure-repos
+      #     git fetch azure ${{ github.base_ref }}
+      #   env:
+      #     ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
   #     - name: Fetch Azure Repos branch and compare
   #       run: |
