@@ -68,35 +68,35 @@ jobs:
         env:
           ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
-  # branch_sync:
-  #   if: ${{ github.event_name == 'push' }}
+  branch_sync:
+    if: ${{ github.event_name == 'push' }}
 
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Push to Azure Repos
-  #       run: |
-  #         git remote add azure   https://ai-constr-vision:$AZURE_PAT@dev.azure.com/ai-constr-vision/static-web-apps/_git/github-azure-repos
-  #         git config user.name "taisei-document-portal"
-  #         git config user.email "taisei-document-portal@github.com"
+      - name: Push to Azure Repos
+        run: |
+          git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
+          git config user.name "taisei-document-portal"
+          git config user.email "taisei-document-portal@github.com"
           
-  #         if git fetch azure ${{ github.ref_name }}; then
-  #           echo "Azure branch found. Proceeding with safe push (--force-with-lease)."
-  #           git push azure ${{ github.ref_name }} --force-with-lease
-  #           echo "Pushed with --force-with-lease"
-  #           echo "Azure Reposの ${{ github.ref_name }}ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
-  #         else
-  #           echo "Azure branch does not exist yet. This is the first push."
-  #           git push azure ${{ github.ref_name }} --force
-  #           echo "Pushed with --force (initial push)"
-  #           echo "Azure Reposの ${{ github.ref_name }}ブランチの初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
-  #         fi
-  #       env:
-  #         AZURE_PAT: ${{ secrets.AZURE_DEVOPS_EXT_PAT }}
+          if git fetch azure ${{ github.ref_name }}; then
+            echo "Azure branch found. Proceeding with safe push (--force-with-lease)."
+            git push azure ${{ github.ref_name }} --force-with-lease
+            echo "Pushed with --force-with-lease"
+            echo "Azure Reposの ${{ github.ref_name }}ブランチ同期（ミラーリング）を実施しました。" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "Azure branch does not exist yet. This is the first push."
+            git push azure ${{ github.ref_name }} --force
+            echo "Pushed with --force (initial push)"
+            echo "Azure Reposの ${{ github.ref_name }}ブランチの初回同期を実施ました。" >> $GITHUB_STEP_SUMMARY
+          fi
+        env:
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
 # git remote add azure https://taiseiazure-CAI:$AZURE_PAT@dev.azure.com/taiseiazure-CAI/DocumentPortal/_git/DocumentPortal-Backend
 # git remote add azure https://taiseiazure-CAI:$AZURE_PAT@dev.azure.com/taiseiazure-CAI/DocumentPortal/_git/DocumentPortal-Batch
