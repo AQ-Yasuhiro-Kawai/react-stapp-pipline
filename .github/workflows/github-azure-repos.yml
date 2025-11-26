@@ -32,15 +32,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.ADO_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-
-      - name: Debug key length
-        run: |
-          wc -l ~/.ssh/id_rsa
-          head -n 5 ~/.ssh/id_rsa
-          cat ~/.ssh/id_rsa
-          if [ -z "${{ secrets.ADO_SSH_KEY }}" ]; then echo "EMPTY"; else echo "NOT EMPTY"; fi
-        shell: bash
+          ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
 
       - name: Push to Azure Repos
         run: |
