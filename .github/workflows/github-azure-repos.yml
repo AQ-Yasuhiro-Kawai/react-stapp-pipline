@@ -78,6 +78,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.ADO_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
+
       - name: Push to Azure Repos
         run: |
           git remote add azure git@ssh.dev.azure.com:v3/ai-constr-vision/static-web-apps/github-azure-repos
