@@ -32,7 +32,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.ADO_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
+          #ssh-keyscan ssh.dev.azure.com >> ~/.ssh/known_hosts
 
       - name: Fetch Azure Repos branch and compare
         run: |
@@ -57,8 +57,8 @@ jobs:
             echo "Since there are no branches in Azure Repos：${{ github.base_ref }}, the comparison was skipped."
             echo "Azure Reposにブランチ ${{ github.base_ref }} が存在しないため、比較をスキップしました。" >> $GITHUB_STEP_SUMMARY
           fi
-        # env:
-        #   ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
+        env:
+          ADO_SSH_KEY: ${{ secrets.ADO_SSH_KEY }}
 
   branch_sync:
     if: ${{ github.event_name == 'push' }}
